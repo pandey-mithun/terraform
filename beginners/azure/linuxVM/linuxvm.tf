@@ -7,8 +7,7 @@
 #
 
 provider "azurerm" {
-    version         =   ">=2.6"    
-    features {}
+  features {}
 }
 
 #
@@ -16,10 +15,10 @@ provider "azurerm" {
 #
 
 # use existing resource group
-resource "azurerm_resource_group" "rg" {
-    name                  =   "ODL-azure-1057313"
-    #location              =   var.location
-    #tags                  =   var.tags
+data "azurerm_resource_group" "rg" {
+  name = "ODL-azure-1057313"
+  #location              =   var.location
+  #tags                  =   var.tags
 }
 
 #
@@ -27,11 +26,11 @@ resource "azurerm_resource_group" "rg" {
 #
 
 resource "azurerm_virtual_network" "vnet" {
-    name                  =   "${var.prefix}-vnet"
-    resource_group_name   =   data.azurerm_resource_group.rg.name
-    location              =   data.azurerm_resource_group.rg.location
-    address_space         =   [var.vnet_address_range]
-    tags                  =   var.tags
+  name                = "${var.prefix}-vnet"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  address_space       = [var.vnet_address_range]
+  tags                = var.tags
 }
 
 #
@@ -39,10 +38,10 @@ resource "azurerm_virtual_network" "vnet" {
 #
 
 resource "azurerm_subnet" "web" {
-    name                  =   "${var.prefix}-web-subnet"
-    resource_group_name   =   data.azurerm_resource_group.rg.name
-    virtual_network_name  =   azurerm_virtual_network.vnet.name
-    address_prefixes      =   [var.subnet_address_range]
+  name                 = "${var.prefix}-web-subnet"
+  resource_group_name  = data.azurerm_resource_group.rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = [var.subnet_address_range]
 }
 
 #
@@ -50,23 +49,23 @@ resource "azurerm_subnet" "web" {
 #
 
 resource "azurerm_network_security_group" "nsg" {
-    name                        =       "${var.prefix}-web-nsg"
-    resource_group_name         =       data.azurerm_resource_group.rg.name
-    location                    =       data.azurerm_resource_group.rg.location
-    tags                        =       var.tags
+  name                = "${var.prefix}-web-nsg"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  tags                = var.tags
 
-    security_rule {
-    name                        =       "Allow_SSH"
-    priority                    =       1000
-    direction                   =       "Inbound"
-    access                      =       "Allow"
-    protocol                    =       "Tcp"
-    source_port_range           =       "*"
-    destination_port_range      =       22
-    source_address_prefix       =       "PASTE_YOUR_IP_ADDRESS_HERE" 
-    destination_address_prefix  =       "*"
-    
-    }
+  security_rule {
+    name                       = "Allow_SSH"
+    priority                   = 1000
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = 22
+    source_address_prefix      = "58.84.61.123"
+    destination_address_prefix = "*"
+
+  }
 }
 
 
@@ -75,8 +74,8 @@ resource "azurerm_network_security_group" "nsg" {
 #
 
 resource "azurerm_subnet_network_security_group_association" "subnet-nsg" {
-    subnet_id                    =       azurerm_subnet.web.id
-    network_security_group_id    =       azurerm_network_security_group.nsg.id
+  subnet_id                 = azurerm_subnet.web.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
 
@@ -85,11 +84,11 @@ resource "azurerm_subnet_network_security_group_association" "subnet-nsg" {
 #
 
 resource "azurerm_public_ip" "pip" {
-    name                            =     "${var.prefix}-linuxvm-public-ip"
-    resource_group_name             =     data.azurerm_resource_group.rg.name
-    location                        =     data.azurerm_resource_group.rg.location
-    allocation_method               =     var.allocation_method[0]
-    tags                            =     var.tags
+  name                = "${var.prefix}-linuxvm-public-ip"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  allocation_method   = var.allocation_method[0]
+  tags                = var.tags
 }
 
 #
@@ -97,16 +96,16 @@ resource "azurerm_public_ip" "pip" {
 #
 
 resource "azurerm_network_interface" "nic" {
-    name                              =   "${var.prefix}-linuxvm-nic"
-    resource_group_name               =   data.azurerm_resource_group.rg.name
-    location                          =   data.azurerm_resource_group.rg.location
-    tags                              =   var.tags
-    ip_configuration                  {
-        name                          =  "${var.prefix}-nic-ipconfig"
-        subnet_id                     =   azurerm_subnet.web.id
-        public_ip_address_id          =   azurerm_public_ip.pip.id
-        private_ip_address_allocation =   var.allocation_method[1]
-    }
+  name                = "${var.prefix}-linuxvm-nic"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  tags                = var.tags
+  ip_configuration {
+    name                          = "${var.prefix}-nic-ipconfig"
+    subnet_id                     = azurerm_subnet.web.id
+    public_ip_address_id          = azurerm_public_ip.pip.id
+    private_ip_address_allocation = var.allocation_method[1]
+  }
 }
 
 
@@ -115,31 +114,31 @@ resource "azurerm_network_interface" "nic" {
 # 
 
 resource "azurerm_linux_virtual_machine" "vm" {
-    name                              =   "${var.prefix}-linuxvm"
-    resource_group_name               =   data.azurerm_resource_group.rg.name
-    location                          =   data.azurerm_resource_group.rg.location
-    network_interface_ids             =   [azurerm_network_interface.nic.id]
-    size                              =   var.virtual_machine_size
-    computer_name                     =   var.computer_name
-    admin_username                    =   var.admin_username
-    admin_password                    =   var.admin_password
-    disable_password_authentication   =   false
+  name                            = "${var.prefix}-linuxvm"
+  resource_group_name             = data.azurerm_resource_group.rg.name
+  location                        = data.azurerm_resource_group.rg.location
+  network_interface_ids           = [azurerm_network_interface.nic.id]
+  size                            = var.virtual_machine_size
+  computer_name                   = var.computer_name
+  admin_username                  = var.admin_username
+  admin_password                  = var.admin_password
+  disable_password_authentication = false
 
-    os_disk  {
-        name                          =   "${var.prefix}-linuxvm-os-disk"
-        caching                       =   var.os_disk_caching
-        storage_account_type          =   var.os_disk_storage_account_type
-        disk_size_gb                  =   var.os_disk_size_gb
-    }
+  os_disk {
+    name                 = "${var.prefix}-linuxvm-os-disk"
+    caching              = var.os_disk_caching
+    storage_account_type = var.os_disk_storage_account_type
+    disk_size_gb         = var.os_disk_size_gb
+  }
 
-    source_image_reference {
-        publisher                     =   var.publisher
-        offer                         =   var.offer
-        sku                           =   var.sku
-        version                       =   var.vm_image_version
-    }
+  source_image_reference {
+    publisher = var.publisher
+    offer     = var.offer
+    sku       = var.sku
+    version   = var.vm_image_version
+  }
 
-    tags                              =   var.tags
+  tags = var.tags
 
 }
 
