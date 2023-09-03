@@ -107,19 +107,19 @@ variable "os_disk_storage_account_type" {
 }
 
 variable "os_disk_size_gb" {
-  default = 30
+  default = 128
 }
 
 variable "publisher" {
-  default = "MicrosoftWindowsDesktop"
+  default = "microsoftwindowsdesktop"
 }
 
 variable "offer" {
-  default = "Windows-10"
+  default = "windows-10"
 }
 
 variable "sku" {
-  default = "rs5-pro"
+  default = "win10-21h2-ent"
 }
 
 variable "vm_image_version" {
