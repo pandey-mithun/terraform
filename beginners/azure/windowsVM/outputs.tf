@@ -24,5 +24,6 @@ output "win_vm_login" {
         "VM-Name"   =   azurerm_windows_virtual_machine.vm.name
         "Username"  =   azurerm_windows_virtual_machine.vm.admin_username
         "Password"  =   azurerm_windows_virtual_machine.vm.admin_password
-    }  
+    }
+    sensitive = true  
 }

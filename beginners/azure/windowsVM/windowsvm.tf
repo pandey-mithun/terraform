@@ -7,12 +7,6 @@
 #
 
 provider "azurerm" {
-    version         =   ">=2.6"
-    client_id       =   var.client_id
-    client_secret   =   var.client_secret
-    subscription_id =   var.subscription_id
-    tenant_id       =   var.tenant_id
-    
     features {}
 }
 
@@ -20,11 +14,13 @@ provider "azurerm" {
 # - Create a Resource Group
 #
 
-resource "azurerm_resource_group" "rg" {
-    name                  =   "${var.prefix}-rg"
-    location              =   var.location
-    tags                  =   var.tags
+#use an existing resource group
+data "azurerm_resource_group" "rg" {
+    name                  =   "ODL-azure-1057271"
+    #location              =   "eastus"
+    #tags                  =   var.tags
 }
+
 
 #
 # - Create a Virtual Network
@@ -32,8 +28,8 @@ resource "azurerm_resource_group" "rg" {
 
 resource "azurerm_virtual_network" "vnet" {
     name                  =   "${var.prefix}-vnet"
-    resource_group_name   =   azurerm_resource_group.rg.name
-    location              =   azurerm_resource_group.rg.location
+    resource_group_name   =   data.azurerm_resource_group.rg.name
+    location              =   data.azurerm_resource_group.rg.location
     address_space         =   [var.vnet_address_range]
     tags                  =   var.tags
 }
@@ -44,8 +40,8 @@ resource "azurerm_virtual_network" "vnet" {
 
 resource "azurerm_subnet" "web" {
     name                  =   "${var.prefix}-web-subnet"
-    resource_group_name   =   azurerm_resource_group.rg.name
-    virtual_network_name  =   azurerm_virtual_network.vnet.name
+    resource_group_name   =   data.azurerm_resource_group.rg.name
+    virtual_network_name  =   data.azurerm_virtual_network.vnet.name
     address_prefixes      =   [var.subnet_address_range]
 }
 
@@ -55,8 +51,8 @@ resource "azurerm_subnet" "web" {
 
 resource "azurerm_network_security_group" "nsg" {
     name                        =       "${var.prefix}-web-nsg"
-    resource_group_name         =       azurerm_resource_group.rg.name
-    location                    =       azurerm_resource_group.rg.location
+    resource_group_name         =       data.azurerm_resource_group.rg.name
+    location                    =       data.azurerm_resource_group.rg.location
     tags                        =       var.tags
 
     security_rule {
@@ -67,7 +63,7 @@ resource "azurerm_network_security_group" "nsg" {
     protocol                    =       "Tcp"
     source_port_range           =       "*"
     destination_port_range      =       3389
-    source_address_prefix       =       "PASTE_YOUR_IP_ADDRESS_HERE" 
+    source_address_prefix       =       "58.84.61.123" 
     destination_address_prefix  =       "*"
     
     }
@@ -90,8 +86,8 @@ resource "azurerm_subnet_network_security_group_association" "subnet-nsg" {
 
 resource "azurerm_public_ip" "pip" {
     name                            =     "${var.prefix}-winvm-public-ip"
-    resource_group_name             =     azurerm_resource_group.rg.name
-    location                        =     azurerm_resource_group.rg.location
+    resource_group_name             =     data.azurerm_resource_group.rg.name
+    location                        =     data.azurerm_resource_group.rg.location
     allocation_method               =     var.allocation_method[0]
     tags                            =     var.tags
 }
@@ -102,8 +98,8 @@ resource "azurerm_public_ip" "pip" {
 
 resource "azurerm_network_interface" "nic" {
     name                              =   "${var.prefix}-winvm-nic"
-    resource_group_name               =   azurerm_resource_group.rg.name
-    location                          =   azurerm_resource_group.rg.location
+    resource_group_name               =   data.azurerm_resource_group.rg.name
+    location                          =   data.azurerm_resource_group.rg.location
     tags                              =   var.tags
     ip_configuration                  {
         name                          =  "${var.prefix}-nic-ipconfig"
@@ -120,8 +116,8 @@ resource "azurerm_network_interface" "nic" {
 
 resource "azurerm_windows_virtual_machine" "vm" {
     name                              =   "${var.prefix}-winvm"
-    resource_group_name               =   azurerm_resource_group.rg.name
-    location                          =   azurerm_resource_group.rg.location
+    resource_group_name               =   data.azurerm_resource_group.rg.name
+    location                          =   data.azurerm_resource_group.rg.location
     network_interface_ids             =   [azurerm_network_interface.nic.id]
     size                              =   var.virtual_machine_size
     computer_name                     =   var.computer_name
