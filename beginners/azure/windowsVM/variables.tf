@@ -7,25 +7,21 @@
 # variable "client_id" {
 #   description = "Client ID (APP ID) of the application"
 #   type        = string
-#   default     = "5700ab4d-21e9-477a-a2c7-4bd3b1e1f4ec"
 # }
 
 # variable "client_secret" {
 #   description = "Client Secret (Password) of the application"
 #   type        = string
-#   default     = "9fe8Q~Nj05dIzTrWdI6Wp8_B1XsuIQUjfVKzHc4p"
 # }
 
 # variable "subscription_id" {
 #   description = "Subscription ID"
 #   type        = string
-#   default     = "b2aec48f-6dad-4d57-ad25-dad521fe74a4"
 # }
 
 # variable "tenant_id" {
 #   description = "Tenant I   D"
 #   type        = string
-#   default     = "0d7cc8e9-be54-45cc-b2e3-041a9b45aa57"
 # }
 
 # Prefix and Tags
