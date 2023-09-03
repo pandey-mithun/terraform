@@ -15,6 +15,7 @@ provider "azurerm" {
 #
 
 #use an existing resource group
+#replace the name with your existing resource group
 data "azurerm_resource_group" "rg" {
   name = "ODL-azure-1057313"
   #location              =   "eastus"

@@ -77,7 +77,7 @@ variable "allocation_method" {
 variable "virtual_machine_size" {
   description = "Size of the VM"
   type        = string
-  default     = "Standard_B1s"
+  default     = "Standard_D2s_v3"
 }
 
 variable "computer_name" {
