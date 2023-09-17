@@ -4,12 +4,12 @@
 
 output "resource-group-name" {
     description     =   "Print the name of the resource group"
-    value           =   azurerm_resource_group.rg.name
+    value           =   data.azurerm_resource_group.rg.name
 }
 
 output "resource-group-location" {
     description     =   "Print the location of the resource group"
-    value           =   azurerm_resource_group.rg.location
+    value           =   data.azurerm_resource_group.rg.location
 }
 
 output "virtual-network-name" {
